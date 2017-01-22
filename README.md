@@ -2,15 +2,13 @@
 > "But you're not an organization!?"
 
 
-I have organs too!
-
 This readme will serve as a catalog of all the information needed to start a blog on a (very) low end VPS. I'll leave out specifics, like what theme I'm running (although that [does sometimes make a difference in functionality](https://euer.krebsco.de/piwik-for-this-blog.html), unfortunately)
 
 ## Table of contents
-- [#Deploying](Deploying)
-- [#Transparency](Transparency)
-- [#Features](Features)
-- [#Repro](Repro)
+- [Deploying](#Deploying)
+- [Transparency](#Transparency)
+- [Features](#Features)
+- [Repro](#Repro)
 
 ## Deploying
 
@@ -18,7 +16,7 @@ As of now, this blog is hosted on an nginx server obtained through apt-get and c
 
 When I see 'doesn't scale well at all' I mean I run oom just running nix-env -q. Attempts to compile it with the Boehm GC (as described in the wiki) doesn't work, as I can't even compile ZNC. What does work, very, very well is the ability to install locally on my own machine, export it to a closure, and then rsync it over to the machine and import it to the store, installing from there.
 
-This can be accomplished [https://nixos.org/nix/manual/#ssec-copy-closure](two ways), I do it the second way:
+This can be accomplished [in two ways](https://nixos.org/nix/manual/#ssec-copy-closure), I do it the second way:
 
 ``` bash
 local $ nix-store --export $(nix-store -qR $(type -p nginx)) > nginx.closure
@@ -34,7 +32,7 @@ jarmac.org $ which nginx
 
 I've done exactly this to get znc and nginx running. This more than likely could be placed into some default.nix file so that instead I can just push that, and execute it with nix-build.
 
-Further, while I will be using pelican (moving from jekyll, both static site generators), I  will be using [https://github.com/piwik/piwik](piwik), just so I can visualize the reality that I'm posting to /dev/null.
+Further, while I will be using pelican (moving from jekyll, both static site generators), I  will be using [piwik](https://github.com/piwik/piwik), just so I can visualize the reality that I'm posting to /dev/null.
 
 I aim to keep as much deploy logic locally as possible, including login credentials (another reason to use RSA keys!) The only thing I did on the remote server is create a symlink from /usr/share/nginx/www to where it is pushed to.
 
@@ -52,6 +50,6 @@ I aim to make this process as transparent as possible, excepting secrets and ser
 
 
 ## Repro
-I do not suggest git cloning this. I'd rather you read the document, specifically with [#deploy](deploy) as that is how I do everything that isn't blog writing.
+I do not suggest git cloning this. I'd rather you read this document, specifically [deploy](#deploy) as that is how I do everything that isn't blog writing.
 
 First, you need either a shared hosting provider or a VPS of your own. I'm currently using Ramnode for a (very) cheap VPS, as my needs are miniscule. I do not like how locked down shared hosting is, and I don't really want to play ball with cpanel if I can help it.
