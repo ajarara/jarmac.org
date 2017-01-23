@@ -1,14 +1,14 @@
 # [jarmac.org](http://jarmac.org)
-> "But you're not an organization!?"
+> "But you're not an organization!!"
 
 
 This readme will serve as a catalog of all the information needed to start a blog on a (very) low end VPS. I'll leave out specifics, like what theme I'm running (although that [does sometimes make a difference in functionality](https://euer.krebsco.de/piwik-for-this-blog.html), unfortunately)
 
 ## Table of contents
-- [Deploying](#Deploying)
-- [Transparency](#Transparency)
-- [Features](#Features)
-- [Repro](#Repro)
+- [Deploying](#deploying)
+- [Transparency](#transparency)
+- [Features](#features)
+- [Repro](#repro)
 
 ## Deploying
 
@@ -46,7 +46,6 @@ I aim to make this process as transparent as possible, excepting secrets and ser
 
 - Pelican
 - Piwik (pending)
-
 
 
 ## Repro
