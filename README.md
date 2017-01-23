@@ -2,7 +2,7 @@
 > "But you're not an organization!!"
 
 
-This readme will serve as a catalog of all the information needed to start a blog on a (very) low end VPS. I'll leave out specifics, like what theme I'm running (although that [does sometimes make a difference in functionality](https://euer.krebsco.de/piwik-for-this-blog.html), unfortunately)
+This readme will serve as a catalog of all the information needed to start a blog on a (very) low end VPS. I'll leave out specifics, like what theme I'm running (although that [does sometimes make a difference in functionality](https://euer.krebsco.de/piwik-for-this-blog.html))
 
 ## Table of contents
 - [Deploying](#deploying)
@@ -52,3 +52,5 @@ I aim to make this process as transparent as possible, excepting secrets and ser
 I do not suggest git cloning this. I'd rather you read this document, specifically [deploy](#deploy) as that is how I do everything that isn't blog writing.
 
 First, you need either a shared hosting provider or a VPS of your own. I'm currently using Ramnode for a (very) cheap VPS, as my needs are miniscule. I do not like how locked down shared hosting is, and I don't really want to play ball with cpanel if I can help it.
+
+I use [markdown-mode](https://github.com/jrblevin/markdown-mode), and [pelican-mode](https://github.com/qdot/pelican-mode) to make things convenient. Pelican-mode is quite old, but it still works fine, thanks to the fact that pelican uses plain old makefiles as the standard interface to do things.
