@@ -34,5 +34,4 @@ However, that function applied to the context of our problem introduces severe r
 		(lambda (signal)
 ```
 Edit 1/23/17: This post terminates here. You can see how I actually implemented it on [github](https://github.com/alphor/diophantine-33/blob/14772bb5f65824ac97fe8e321ece09a98cf00ea3/diophantine-3d.scm#L74)
-
 gen-increment-3-pivot-list is actually cantor's pairing function applied to 3-space but it only enumerates sets, that is, (3 2 1) is enumerated, but any permutation of it (ie (2 3 1), (1 2 3)... etc) is not.
