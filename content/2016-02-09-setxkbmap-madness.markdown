@@ -1,6 +1,6 @@
 title:  "setxkbmap madness"
 date:   2016-02-09 17:28:51 -0500
-categories: desktop linux
+category: linux
 
 I recently came across an article off [Economy of Effort][econofeffort] about keeping your pinky happy by swapping around caps lock with control. This is not new to most people, and is easy to do with [Karabiner][karabiner] for OS X. Unfortunately my last Macbook is back home, and also terribly, terribly old (if anyone else has the black 2006, you paid $200 extra for the paint job and some extra RAM, life is tough).
 

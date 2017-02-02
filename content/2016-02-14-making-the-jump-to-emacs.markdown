@@ -1,7 +1,7 @@
 layout: post
 title:  "Making the Jump to Emacs"
 date:   2016-02-14 21:49:51 -0500
-categories: editor
+category: $editor
 
 ## Why I Started With Vim
 

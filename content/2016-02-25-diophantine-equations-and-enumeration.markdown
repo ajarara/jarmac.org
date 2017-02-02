@@ -1,7 +1,7 @@
 layout: post
 title:  "Diophantine Equations and Enumeration"
 date:   2016-02-25 13:29:51 -0500
-categories: math
+category: math
 
 
 ## Motivation
