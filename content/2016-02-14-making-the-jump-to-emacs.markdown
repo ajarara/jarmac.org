@@ -11,11 +11,9 @@ Vim stood out to me as the most useful. However, vim was right out of reach. For
 
 However, most tools aren't intuitive. We've seen other people use hammers, but what if I give you a tool that you probably haven't seen before?
 
-![Seems like this picture's missing. Let me know at ajarara@jarmac.org]({{ site.url }}/assets/esd-wrist-strap.jpg)
+![There's supposed to be a picture here. Notify: ajarara@jarmac.org](/images/strap.png)
 
-(Looking at the file name is cheating, by the way)
-
-It's used to prevent electrostatic discharge when working on the internals of computers. It's not strictly necessary, but it's really nice to have. It's also not intuitive to use. I've had to stop people trying to put the clamp straight on the motherboard once I tell them what it does, and that might've been something I would have done had I not looked into it.
+It's used to prevent electrostatic discharge when working on the internals of computers. It's not strictly necessary, but it's easy on the mind to have. It's also not intuitive to use. I've had to stop people trying to put the clamp straight on the motherboard once I tell them what it does, and that might've been something I would have done had I not looked into it.
 
 The point is, that the tools we have available have some payoff hidden beyond some technical know how. And the resources at getting you started may come with a manual of its own (looking at you, emacs in-line help system).
 
