@@ -7,7 +7,7 @@ Slug: starting-nix
 
 Nix is awesome. It makes deploying so much fun.
 
-By now I've been playing with Nix for about 2 weeks. With learning any new tech there is always a period of utter confusion, where you land deep in S/O questions that answer the wrong questions. In #emacs, there is something called an X-Y problem, addressing directly this.
+By now I've played with Nix for about 2 weeks, and I've noticed that with learning any new tech there is always a period of utter confusion, where you land deep in S/O questions that answer the wrong questions. In #emacs, there is something called an X-Y problem, addressing directly this.
 
 ``` text
 <fsbot> alphor: hmm, xyproblem is when you want to do X, and you think
@@ -16,7 +16,7 @@ By now I've been playing with Nix for about 2 weeks. With learning any new tech 
     <http://mywiki.wooledge.org/XyProblem>
 ```
 
-The problem is that it's difficult to know that someone has encountered the problem before and has set up a convenient interface (or guide) to do it in the tech you're working with. In Nix, it's especially poignant, as that is what Nix is all about: You declare what you want your machine to do, Nix does the heavy lifting.
+The problem is that it's difficult to know that someone has encountered the problem before and has set up a convenient interface (or guide) to do it in the tech you're working with. In Nix, it's especially poignant, as that is what Nix is all about: We declare what we want our machine to do, Nix does the heavy lifting.
 
 If that sounds optimistic, know that a _lot_ of work has been done so far to achieve this goal: Nix (and NixOS) has been developed since 2004, and is probably hitting critical mass. #nixos on freenode is very active and helpful. Last week marked the 100,000th commit on nixpkgs, a ports-like repository of derivations. 
 
@@ -46,7 +46,7 @@ In order to declare this, first we have to set up our interfaces like so:
 ```
 
 
-Easy, right? The hard part isn't that. It's creating a new routing table.
+Easy, right? The hard part isn't that, though. It's creating a new routing table.
 
 # The X-Y Problem
 
@@ -86,18 +86,15 @@ Wh... what?
 
 ![Eternal-sadness](/images/another-castle.jpg)
 
+## The Reasonable Way
 
+The read only file system is our Y problem. Whether or not making the store world writable is possible (it probably isn't a good idea), there is another solution to our original problem. It's not obvious.
 
-## The Reasonable Way (now with limited hair loss!)
+What we want to do is modify the postInstall phase of the iproute derivation.
 
-The read only file system is our Y problem. Whether or not making the store world writable is possible, there is a very elegant solution to this problem. It's not obvious.
+This is much easier than automating the last step (so that changes persist across reboot), and the manual outlines a [couple ways](http://nixos.org/nixos/manual/index.html#sec-customising-packages) to do this, depending on if we want to modify the derivation as it comes in, or derive a new derivation from the existing one, overwriting the previous.
 
-What you want to do is modify the postInstall phase of the iproute derivation.
-
-
-This is much easier than automating the last step (so that changes persist across reboot), and the manual outlines a [couple ways](http://nixos.org/nixos/manual/index.html#sec-customising-packages) to do this, depending on if you want to modify the derivation as it comes in, or derive a new derivation from the existing one, overwriting the previous.
-
-There is a distinction between these two: the first makes it so that any package that depends on the derivation you are modifying uses the modified derivation. The second essentially creates a new scope where your derivation exists, but if something else depends on the derivation you're messing around with, it will use the stock one.
+There is a distinction between these two: the first makes it so that any package that depends on the derivation we are modifying uses the modified derivation. The second essentially creates a new scope where our derivation exists, but if something else depends on the derivation we're messing around with, it will use the stock one.
 
 
 
@@ -116,7 +113,7 @@ In this case, I want my routing global and consistent, so I went with the first 
          '';
          # if I wanted to append iproute's postInstall phase,
          # I would also concat attrs.postInstall to this.
-         # Also note you don't want ${attrs.out} here, explained a paragraph below
+         # Also note we don't want ${attrs.out} here, explained a paragraph below
          });
      };
    
@@ -124,7 +121,7 @@ In this case, I want my routing global and consistent, so I went with the first 
 
 Notice, the assignment is itself a function that takes an argument. In this case, it is pkgs, but I could've named it bananas if I wanted to. Further, overrideDerivation is a function that itself takes a package and a function. This new function, prefixed with attrs: in the code block above, takes the attribute set and returns a new one. This allows me to add in the attributes of the stock derivation, if I wanted to. In this case, iproute doesn't even _have_ a postInstall section, so I do not include it.
 
-Further, I explicitly do not want the $out from attrs, so I don't use ${attrs.out} as that would refer to the stock derivation when I want to refer to the modified one. I tripped up on this as well, but this changes the hash and in a sort of rabbit pulling out the magician trick, you attempt to modify the old derivation, which, for reasons above, just don't work.
+Further, I explicitly do not want the $out from attrs, so I don't use ${attrs.out} as that would refer to the stock derivation when I want to refer to the modified one. I tripped up on this as well, but this changes the hash and in a sort of rabbit pulling out the magician trick, we attempt to modify the old derivation, which, for reasons above, just don't work.
 
 # Conclusions
 
