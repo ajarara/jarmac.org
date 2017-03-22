@@ -96,3 +96,5 @@ Well, that's not all you have to do. [Setting up piwik itself is quite easy!](ht
 
 # TODO
 Ramnode's servers limit me to updating from their own mirrors, but their mirrors are _ancient_. PHP 5 is the newest they've got, and 7 is recommended for use by piwik, and I can see why, at this point, I'm paging out to swap often. I want to move all this to Linode on a NixOS vps. It is possible to do so, but if they start supporting it officially I will switch ASAP. As for now, I'll disable piwik.
+
+And if I do that, I'd also want to add Disqus integration.
