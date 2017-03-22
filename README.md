@@ -62,3 +62,34 @@ PELICANOPTS=-t blue-penguin
 ```
 
 Currently trying to set up [Piwik-3.0.0](https://github.com/piwik/piwik/tree/3.0.0#requirements) as well. It needs php5, mysql, and some bridge, be it MySQLi or PDO. I just used whatever aptitude gave me. I used nix to send over php5 and mysql, but since there was no php5-mysql derivation, I resorted to aptitude. We'll see if theres any madness, but I don't expect any.
+
+Piwik is easy to install by following these instructions. I'm uncomfortable setting it up so that it is internet facing, but that is what we have ssh forwarding for.
+First, create an nginx directive to forward piwik to:
+
+``` nginx
+        location /piwik {
+                alias /home/ajarara/piwik/;
+                autoindex on;
+                allow 127.0.0.1;
+                allow ::1;
+                deny all;
+        }
+```
+This makes it so that only processes on the machine itself can talk to it. (Later on, we'll set PIWIK_URL='http://localhost:80/piwik/')
+
+
+
+SSH tunneling is one of my favorite things to do. It's so cool!
+
+The first number is the port assigned locally, so unless you want to invoke sudo everytime you invoke a tunnel, don't use any privileged ports.
+
+``` ssh
+Host piwik.jarmac.org
+    Hostname jarmac.org
+    LocalForward 9876 127.0.0.1:80
+```
+
+That's it! You'll still have to log in, but that's just an added layer of security.
+
+!!PHP!!
+Well, that's not all you have to do. [Setting up piwik itself is quite easy!](https://piwik.org/docs/installation/#getting-started)

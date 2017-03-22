@@ -6,6 +6,9 @@ AUTHOR = 'Ahmad Jarara'
 SITENAME = 'No Odd Cycles'
 SITEURL = ''
 
+
+
+
 PATH = 'content'
 
 TIMEZONE = 'EST'
@@ -20,9 +23,13 @@ AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
 # Blogroll
-LINKS = (('Pelican', 'http://getpelican.com/'),
-         ('Jinja2', 'http://jinja.pocoo.org/'),
-         ('Source', 'https://github.com/alphor/jarmac.org'),)
+# ('Pelican', 'http://getpelican.com/'),
+# ('Jinja2', 'http://jinja.pocoo.org/'),
+LINKS = (('Source', 'https://github.com/alphor/jarmac.org'),
+         ('NixOS', 'http://jarmac.org/category/nix.html'),
+         ('linux', 'http://jarmac.org/category/linux.html'),
+         ('meta', 'http://jarmac.org/category/meta.html'),
+         ('math', 'http://jarmac.org/category/math.html'),)
 
 # Social widget
 SOCIAL = (('Github', 'https://github.com/alphor/jarmac.org'),)
@@ -31,3 +38,8 @@ DEFAULT_PAGINATION = False
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
+
+# Begin Flex config
+# PLUGIN_PATHS = ['./pelican-plugins']
+# PLUGINS = ['i18n_subsites', 'piwik']
+THEME='./Flex'

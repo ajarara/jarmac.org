@@ -1,7 +1,7 @@
 Title: "Deploying with Nix"
 Date: 2017-03-02 13:16
 Category: nix
-Tags: deploy functional
+Tags: deploy, functional
 Slug: starting-nix
 
 

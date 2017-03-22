@@ -2,6 +2,7 @@ layout: post
 title:  "Making the Jump to Emacs"
 date:   2016-02-14 21:49:51 -0500
 category: $editor
+tags: emacs, vim, kindling
 
 ## Why I Started With Vim
 
