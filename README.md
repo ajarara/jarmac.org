@@ -55,4 +55,10 @@ First, you need either a shared hosting provider or a VPS of your own. I'm curre
 
 I use [markdown-mode](https://github.com/jrblevin/markdown-mode), and [pelican-mode](https://github.com/qdot/pelican-mode) to make things convenient. Pelican-mode is quite old, but it still works fine, thanks to the fact that pelican uses plain old makefiles as the standard interface to do things.
 
+The theme I use is blue-penguin. To use a theme, download it, and install it with ``` pelican-theme -I $theme ```. Then edit your $PELICANOPTS in the makefile (not versioned here) to use the theme, ie:
+
+``` make
+PELICANOPTS=-t blue-penguin
+```
+
 Currently trying to set up [Piwik-3.0.0](https://github.com/piwik/piwik/tree/3.0.0#requirements) as well. It needs php5, mysql, and some bridge, be it MySQLi or PDO. I just used whatever aptitude gave me. I used nix to send over php5 and mysql, but since there was no php5-mysql derivation, I resorted to aptitude. We'll see if theres any madness, but I don't expect any.
