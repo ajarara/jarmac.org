@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = 'Ahmad Jarara'
 SITENAME = 'No Odd Cycles'
-SITEURL = ''
-
+SITEURL = 'https://jarmac.org'
 
 
 

@@ -44,6 +44,7 @@ I aim to make this process as transparent as possible, excepting secrets and ser
 
 ## Features
 
+- TLS
 - Pelican
 - Piwik (pending)
 
@@ -94,7 +95,10 @@ That's it! You'll still have to log in, but that's just an added layer of securi
 !!PHP!!
 Well, that's not all you have to do. [Setting up piwik itself is quite easy!](https://piwik.org/docs/installation/#getting-started)
 
+SSL is thankfully quite easy with certbot. [Enable backports if necessary](https://backports.debian.org/Instructions/) (it was for me), and aptitude install certbot. Follow the instructions, 
 # TODO
-Ramnode's servers limit me to updating from their own mirrors, but their mirrors are _ancient_. PHP 5 is the newest they've got, and 7 is recommended for use by piwik, and I can see why, at this point, I'm paging out to swap often. I want to move all this to Linode on a NixOS vps. It is possible to do so, but if they start supporting it officially I will switch ASAP. As for now, I'll disable piwik.
+Ramnode's servers limit me to updating from their own mirrors, but their mirrors are _ancient_. PHP 5 is the newest they've got, and 7 is recommended for use by piwik, and I can see why, at this point, I'm paging out to swap often. 
+
+I want to move all this to Linode on a NixOS vps. It is possible to do so, but if they start supporting it officially I will switch ASAP. As for now, I'll disable piwik.
 
 And if I do that, I'd also want to add Disqus integration.
