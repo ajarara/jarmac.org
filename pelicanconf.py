@@ -25,13 +25,14 @@ AUTHOR_FEED_RSS = None
 # ('Pelican', 'http://getpelican.com/'),
 # ('Jinja2', 'http://jinja.pocoo.org/'),
 LINKS = (('Source', 'https://github.com/alphor/jarmac.org'),
-         ('NixOS', 'http://jarmac.org/category/nix.html'),
-         ('linux', 'http://jarmac.org/category/linux.html'),
-         ('meta', 'http://jarmac.org/category/meta.html'),
-         ('math', 'http://jarmac.org/category/math.html'),)
+         ('NixOS', '//jarmac.org/category/nix.html'),
+         ('linux', '//jarmac.org/category/linux.html'),
+         ('meta', '//jarmac.org/category/meta.html'),
+         ('math', '//jarmac.org/category/math.html'),)
 
 # Social widget
-SOCIAL = (('Github', 'https://github.com/alphor/jarmac.org'),)
+SOCIAL = (('Github', 'https://github.com/alphor', '//jarmac.org/theme/img/GitHub-Mark-Light-32px.png'),
+          ('RSS', 'https://jarmac.org/feed', '//jarmac.org/theme/img/feed-icon-28x28.png'),)
 
 DEFAULT_PAGINATION = False
 
@@ -42,3 +43,6 @@ DEFAULT_PAGINATION = False
 # PLUGIN_PATHS = ['./pelican-plugins']
 # PLUGINS = ['i18n_subsites', 'piwik']
 THEME='./Flex'
+
+FEED_ALL_RSS = 'feed'
+CATEGORY_FEED_RSS = '%s'
