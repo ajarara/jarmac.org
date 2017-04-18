@@ -1,0 +1,126 @@
+* draft
+title: Containers and Back Again
+
+
+** intro
+Here's a web service:
+
+#+BEGIN_SRC nix
+     systemd.services.myWebApp = {
+      description = "A simple greeting";
+      wantedBy = [ "multi-user.target" ];
+      script = ''
+        while true; do echo "Hello, world!" | ${pkgs.netcat}/bin/nc -l -p 12345; done
+      '';
+    };
+#+END_SRC
+Short of some firewall config, this is a working web app. There's no fpm engine, no load balancing, there isn't even an encoding.
+
+In fact, there's no interface for changing the interface. We _have_ to give it port 12345, even though we're using it for someOtherWebApp. This example is kind of hostile, but there are all sorts of system-related ways programs might not work the way we'd like them to. We can use containers here to reign in control over decisions made by upstream.
+
+** systemd-nspawn
+NixOS provides an interface to systemd-nspawn, a container-like implementation. If you've got systemd, you very likely already have systemd-nspawn (the n stands for namespace). The man page for nspawn [and this (admittedly 3.5 year old) presentation](https://youtu.be/s7LlUs5D9p4?t=381) both warn that the implementation is not for deploying apps meant to be secure. Since I'm still green with containers, I'll stick to using them here, as usage is dead simple, both with and without NixOS (check the systemd-nspawn man page for the 2-line examples).
+
+Nix solves the dependency problem. So what do containers give us? One way filesystem isolation, a fresh IPC namespace, and optionally network isolation.
+
+Here is the above service encapsulated in a container.
+#+BEGIN_SRC nix
+   containers.myWebApp = {
+    privateNetwork = true;  # default is false, which means no network isolation
+    hostAddress = "10.10.1.1";  # you can also use hostBridge instead of another
+                                # veth interface, for docker style networking
+    localAddress = "10.10.1.2";
+    autoStart = true;
+    config = { config, pkgs, ... }:
+    {
+      environment.systemPackages = [
+        pkgs.netcat
+      ];
+      # this is lifted verbatim from the above block
+      systemd.services.myWebApp = {
+        description = "A simple greeting";
+        wantedBy = [ "multi-user.target" ];
+        script = ''
+          while true; do echo "Hello, world!" | ${pkgs.netcat}/bin/nc -l -p 12345; done
+        '';
+      };
+      networking.firewall.allowedTCPPorts = [ 12345 ];
+    };
+  };
+#+END_SRC
+
+A couple of gotchas with this setup. Introducing a private network means the container no longer has access to the internet without doing some extra work.
+NAT solves this problem, but it is heavy handed. As far as I can tell, NixOS only allows for one NAT config declaration, a contrast to how most other networking stuff gets set up (a list of attribute sets, each specifying a config). Since, however, we only need read/write access to a single port, we can use the forwardPorts
+ declaration. This forwards the port on the localAddress to the hostAddress. It's possible to have the port on the hostAddress be different. But unless the host interface is in a bridge, only the host can access anything (without pushing routing to clients). 
+
+Client routing is hairy. Is there a way to expose this port to some external interface? There is!
+
+** iptables
+I know I said NAT is heavy, but here's a solution that employs a static DNAT rule.
+#+BEGIN_SRC nix
+  systemd.services.expose = {
+    description = "rules to expose myWebApp to the world"
+    wantedBy = [ "myWebApp.service" ];
+    serviceConfig = {
+      ExecStart = "sh -c 'iptables -t nat -A PREROUTING -p tcp --dport 12345 -j DNAT --to-destination 10.171.1.2:12345'";
+    };
+  };
+#+END_SRC
+
+There are lots of reasons this solution isn't desirable. This config is dependent on routing of the host being set up correctly. For example, if I were to set up docker style container networking with a global bridge so that containers could easily talk to each other, 
+
+ The late Jim Weirich gave a [presentation detailing precisely why approaches like this one suffer](https://vimeo.com/10837903) in the long term. He ... __connascense__
+
+__One example of minimal connascense is that the expose service is only started when needed. Actually this is high connascense. __
+
+The second, more important reason is that this is a stateful manipulation of the tables. If you want to stop this mapping, you have to flush the appropriate chain. In this case, since we didn't create or specify one, we've got to flush the whole chain. We could go through the trouble of setting up an execStartPre and Post, but there is a much simpler route, from the staff behind the Tarsnap backup service:
+
+** no fuss service publishing with spiped
+
+__SOCAT gets around the awkward talk about keyfiles on the same host. __
+
+I've talked about SSH tunnels before, and I love them. They're a convenient way to configure services on the host without having to resort to slow X11 forwarding, precisely if there is some logic governing remote administration or just paranoia regarding exposed cpanel logins. spiped provides this uncoupled from the logistics of ssh config. It also provides for a portknocking analog. Instead of sending packets to ports on pre-defined intervals, the mechanism to access a resource is a pre shared key. This isn't meant to be the only way to authenticate, but layered on top of any existing auth.
+
+Here's the implementation with spiped:
+#+BEGIN_SRC nix
+
+#+END_SRC
+
+
+** after spiped is set up, why bother with using forwardPorts?
+At this point, since there is the ability to bind interfaces transparently with a mild amount of security, is there any reason to forward ports?
+
+
+forwardPorts allows you to reduce the memory footprint of your container. 
+
+** you can have the pipe be completely encapsulated, providing access to the service transparently
+or you can layer spiped on top of whatever credentials are necessary to manage the process by distributing the keyfile. This is an allegory to [port knocking](__wiki link to port knocking here__)
+
+
+
+
+ 
+ 
+
+
+
+# why do we need to container-ize this?
+# control? rein in software that is hard to configure (because it might be proprietary or the nixos module doesn't provide the interface for it)
+# let the program do what it wants inside the container, and provide an interface to it ourselves?
+# provide for static interface?
+
+# containers complicate things
+# if we want access to the filesystem, the only benefit containers give us in the nix context is IPC namespacing.
+# portForwarding combined with virtualNetworks partially solve this problem.
+
+
+** have web service
+** we don't want the service to have access to the full stack
+so throw it in a container!
+** container forwardports
+spiped configuration
+** containers in NixOS don't make a
+lot of sense if you've got to break multiple abstractions, so if you need access to the filesystem on the host, or you need access to the filesystem from outside the container, you shouldn't really reach for them. The other aspect of a container is that dependencies shared by services on the same machine don't conflict. Nix has no problem handling this on its own. 
+** using spiped makes things easier
+I've been looking for a network aliasing tool for a while now. Spiped is versatile and lightweight. There is no need to establish a PKI to use it, and used correctly, it provides a _much_ more convenient portknocking (link to wiki article) routine.
+

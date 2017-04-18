@@ -1,9 +1,11 @@
 Title: "Deploying with Nix"
-Date: 2017-03-02 13:16
+Date: 2017-04-18 19:03
 Category: nix
 Tags: deploy, functional
 Slug: starting-nix
 
+
+_Edit 4/18/17: This article is based on NixOS 16.09, "Flounder". If you're using NixOS 17.09, the new way to modify a derivation is through the use of [overlays](https://nixos.org/nixpkgs/manual/#sec-overlays-install), which was the standard way of overriding packages previously (as discussed on [S/O here](http://stackoverflow.com/a/36011540))._
 
 Nix is awesome. It makes deploying so much fun.
 
@@ -20,7 +22,7 @@ The problem is that it's difficult to know that someone has encountered the prob
 
 If that sounds optimistic, know that a _lot_ of work has been done so far to achieve this goal: Nix (and NixOS) has been developed since 2004, and is probably hitting critical mass. #nixos on freenode is very active and helpful. Last week marked the 100,000th commit on nixpkgs, a ports-like repository of derivations. 
 
-I want to use Nix to create a home media center. I've done a machine like this before, running XBMC, a timemachine daemon, nfs, local duplicity, and openvpn providing a DMZ and dynamic DNS for access. But, configuration of all these services in tandem was a nightmare. Docker helped in terms of providing isolated environments, but it did not reproduce builds. If I broke something, I'd have to rollback to some state and start over. And I broke things often.
+I want to use Nix to create a home media center. I've done a machine like this before, running XBMC, a timemachine daemon, nfs, local duplicity, and openvpn providing a (logical) DMZ and dynamic DNS for access. But, configuration of all these services in tandem was a nightmare. Docker helped in terms of providing isolated environments, but it did not reproduce builds. If I broke something, I'd have to rollback to some state and start over. And I broke things often.
 
 I really like the way Nix does things. As long as I don't break networking, I'm free to mess around with my machine as I see fit without risking having to reinstall from scratch. Another big plus: all configuration is local, as in on my machine. No forwarding over SSH, no Dockerfiles in tmux, no littered git repos. Everything for a machine is in exactly one repo, [here](https://github.com/alphor/3asirah).
 
@@ -84,7 +86,7 @@ echo 13 eth3 >> etc/iproute2/rt_tables # Success!
 ```
 Wh... what?
 
-![Eternal-sadness](/images/another-castle.jpg)
+![Image missing? Let me know ajarara@jarmac.org](/images/another-castle.jpg)
 
 ## The Reasonable Way
 
