@@ -16,12 +16,12 @@ Here's a web service:
 #+END_SRC
 Short of some firewall config, this is a working web app. There's no fpm engine, no load balancing, there isn't even an encoding.
 
-In fact, there's no interface for changing the interface. We _have_ to give it port 12345, even though we're using it for someOtherWebApp. This example is kind of hostile, but there are all sorts of system-related ways programs might not work the way we'd like them to. We can use containers here to reign in control over decisions made by upstream.
+In fact, there's no interface for changing the interface. We _have_ to give it port 12345, even though we're using it for someOtherWebApp. This example is kind of hostile, but there are all sorts of system-related ways programs might not work the way we'd like them to. One solution is to use a container to reign in control over decisions made by upstream.
 
 ** systemd-nspawn
-NixOS provides an interface to systemd-nspawn, a container-like implementation. If you've got systemd, you very likely already have systemd-nspawn (the n stands for namespace). The man page for nspawn [and this (admittedly 3.5 year old) presentation](https://youtu.be/s7LlUs5D9p4?t=381) both warn that the implementation is not for deploying apps meant to be secure. Since I'm still green with containers, I'll stick to using them here, as usage is dead simple, both with and without NixOS (check the systemd-nspawn man page for the 2-line examples).
+NixOS provides an interface to systemd-nspawn, a container-like implementation. If you've got systemd, you very likely already have systemd-nspawn (n is for namespace). The man page for nspawn [and this (admittedly 3.5 year old) presentation](https://youtu.be/s7LlUs5D9p4?t=381) both warn that the implementation is not for deploying apps meant to be secure. Since I'm still green with containers, I'll stick to using them here, as usage is dead simple, both with and without NixOS (check the systemd-nspawn man page for the 2-line examples).
 
-Nix solves the dependency problem. So what do containers give us? One way filesystem isolation, a fresh IPC namespace, and optionally network isolation.
+Nix solves the dependency resolution problem. So what do nspawn's containers give us? One way filesystem isolation, a fresh IPC namespace, and optionally network isolation.
 
 Here is the above service encapsulated in a container.
 #+BEGIN_SRC nix
@@ -62,18 +62,31 @@ I know I said NAT is heavy, but here's a solution that employs a static DNAT rul
     description = "rules to expose myWebApp to the world"
     wantedBy = [ "myWebApp.service" ];
     serviceConfig = {
-      ExecStart = "sh -c 'iptables -t nat -A PREROUTING -p tcp --dport 12345 -j DNAT --to-destination 10.171.1.2:12345'";
+      ExecStart = "sh -c '${pkgs.iptables} -t nat -A PREROUTING -p tcp --dport 12345 -j DNAT --to-destination 10.171.1.2:12345'";
     };
   };
 #+END_SRC
 
-There are lots of reasons this solution isn't desirable. This config is dependent on routing of the host being set up correctly. For example, if I were to set up docker style container networking with a global bridge so that containers could easily talk to each other, 
+
+The good: This config is on the host, not on the container. In fact, provided routing is set up on the host, the service could be anywhere on the planet (for example:  ```--to-destination example.org:80```).
+
+But... there are lots of reasons this solution isn't desirable. For example, if I were to set up docker style container networking with a global bridge so that containers could easily talk to each other, I'd have to change this as well.
 
  The late Jim Weirich gave a [presentation detailing precisely why approaches like this one suffer](https://vimeo.com/10837903) in the long term. He ... __connascense__
 
 __One example of minimal connascense is that the expose service is only started when needed. Actually this is high connascense. __
 
-The second, more important reason is that this is a stateful manipulation of the tables. If you want to stop this mapping, you have to flush the appropriate chain. In this case, since we didn't create or specify one, we've got to flush the whole chain. We could go through the trouble of setting up an execStartPre and Post, but there is a much simpler route, from the staff behind the Tarsnap backup service:
+The second, more important, reason is that this is a stateful manipulation of the tables. If you want to stop this mapping, you have to flush the appropriate chain. In this case, since we didn't create or specify one, we've got to flush the whole chain. We could go through the trouble of setting up an execStartPre and Post to do this bureacracy, but there is a much simpler route:
+
+*** iptables for great good
+provides a simple policy based solution. with NixOS, all this logic can be encapsulated allowing for easy change of configuration. an example would be setting up the above rule, followed by rejections across all other interfaces. This allows you to reject all packets going out of different interfaces. 
+However, what it can't do is prevent a hostile service from binding to external interfaces. This can be accomplished by throwing it into a container.
+
+Unfortunately, putting something into a container is a heavy limitation. Afaict, there is no way to put something in a network namespace without resorting to containers. If there was, though, this would be ideal.
+
+If only containers allowed you to share namespaces. filesystems, IPC and network.
+** socat
+
 
 ** no fuss service publishing with spiped
 
