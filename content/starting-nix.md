@@ -86,7 +86,7 @@ echo 13 eth3 >> etc/iproute2/rt_tables # Success!
 ```
 Wh... what?
 
-![Image missing? Let me know ajarara@jarmac.org](/images/another-castle.jpg)
+![](/images/another-castle.jpg)
 
 ## The Reasonable Way
 
