@@ -1,0 +1,59 @@
+* porting of 33 project to python
+besides main event loop for introspection, we need to tackle the following things:
+** packaging for portability
+not article worthy
+** event loop
+if concurrent then article worthy. figuring out how to bind to an RPC, for example.
+
+found here: https://github.com/caleblevy/funcstructs
+
+#+BEGIN_SRC python
+  def weak_compositions(n, k):
+      """Enumerates the length k lists of non-negative integers summing to n.
+      Taken directly from http://dandrake.livejournal.com/83095.html."""
+      if n < 0 or k < 0:
+          return
+      elif k == 0:
+          # the empty sum, by convention, is zero, so only return something if
+          # n is zero
+          if n == 0:
+              yield []
+          return
+      elif k == 1:
+          yield [n]
+          return
+      else:
+          # For each first integer i in range(n+1), list all compositions
+          # on n-i nodes, of length at most k-1.
+          for i in range(n+1):
+              for comp in weak_compositions(n-i, k-1):
+                  yield [i] + comp
+#+END_SRC
+
+This provides repeats, but it is a good base for optimization. It handles empty cases, the base case.
+
+The returns terminate the recursive calls. This is a strange function. 
+
+#+BEGIN_SRC python
+  def weak_compositions(n, k):
+      """Enumerates the length k lists of non-negative integers summing to n.
+      Taken directly from http://dandrake.livejournal.com/83095.html."""
+      if n < 0 or k < 0:
+          return
+      elif k == 0:
+          # the empty sum, by convention, is zero, so only return something if
+          # n is zero
+          if n == 0:
+              yield []
+          return
+      elif k == 1:
+          yield [n]
+          return
+      else:
+          # For each first integer i in range(n+1), list all compositions
+          # on n-i nodes, of length at most k-1.
+          for i in range(n+1):
+              for comp in weak_compositions(n-i, k-1):
+                  print(repr(comp))
+                  yield [i] + comp
+#+END_SRC

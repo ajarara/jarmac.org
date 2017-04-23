@@ -1,0 +1,8 @@
+* containers and back again
+** create web service
+
+** log connections to sqlite instance
+difficult to parse output, I guess. Awk is a candidate. So is perl.
+So is cut.
+** show how much simpler it is without containers
+provided you can control network binding, whether it be by patching the application or isolating it somehow.
