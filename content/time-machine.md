@@ -1,5 +1,5 @@
 Title: Deploying a macOS Time Machine server in 42 lines of Nix
-Date: 2017-04-25 16:41
+Date: 2017-04-25 22:04
 Category: nixOS
 Slug: time-machine
 
@@ -16,9 +16,12 @@ After some investigation I found that even though the interface is proprietary, 
 
 I've done this before using Docker, which had its issues, but they weren't Docker-specific:
 
-I had to make sure both Docker and users had permission to read, write, execute their stuff. User GIDs needed to be consistent across the host and across the container. Avahi loses its functionality when put in a container unless you have a _very_ creative networking setup. Since we need to break the file system and network encapsulation layers anyway, this kind of service really doesn't belong in a container. Especially since the Nix packaging system is so good at handling the dependency problem. [^2]
+I had to make sure both Docker and users had permission to read, write, execute their stuff. User GIDs needed to be consistent across the host and across the container. Avahi loses its functionality when put in a container unless you have a _very_ creative networking setup. [^2] 
 
-[^2]: It's interesting thinking about containers vs Nix. On the one hand, they both solve the dependency resolution problem. However, that's where they diverge. Stock NixOS doesn't care about other forms of encapsulation. It focuses more so on build management and configuration. In this case NixOS is the clear choice.
+[^2]: I suppose it is possible if you bridged your interface and the Docker bridge (or veth, whatever you're using). This would mean exposing _every_ Docker service to your LAN, as that is what is needed to get broadcast packets to work.
+
+Since we need to break the file system and network encapsulation layers anyway, putting this service in a container makes little sense. Especially since the Nix packaging system is so good at handling the dependency problem. 
+
 
 The config is short, readable, and all in one file. If you're running NixOS, all you have to do is import the below to get one (changing relevant details like user, directory, allowed hosts, etc.).
 
@@ -70,18 +73,16 @@ The config is short, readable, and all in one file. If you're running NixOS, all
 Yes, I counted the line breaks.
 
 # How?
-Nix does everything: it pulls in netatalk and avahi[^3], opens the right firewall interfaces, and registers and multicasts the service. It just works.
-
-[^3]: Since we're not adding any compile flags, we get to pull the binaries from the nixpkgs cache.
+Nix does everything: it pulls in the netatalk and avahi binaries from the cache, opens the right firewall interfaces, and registers and multicasts the service. It just works.
 
 Netatalk implements the Apple Filing Protocol (afp), which is what Apple uses on their own Time Capsules. The config was easy enough to understand: I lifted it from [an old guide](https://kremalicious.com/ubuntu-as-mac-file-server-and-time-machine-volume/) on how to do this on stock Ubuntu. 
 
 In some cases, the NixOS interface for configuration of a service boils down to attribute sets where the maintainer of the module created attribute sets for the things they needed, and extraConfig for all the other cases. I like this, because it allows things to [be implemented gradually](https://news.ycombinator.com/item?id=12337549).
 
-Setting up Avahi is, of course, simple. It is after all an implementation of the [zero-conf spec](https://en.wikipedia.org/wiki/Zero-configuration_networking#Avahi). The relevant portion that requires some config is enabling user service publishing[^4]
+Setting up Avahi is, of course, simple. It is after all an implementation of the [zero-conf spec](https://en.wikipedia.org/wiki/Zero-configuration_networking#Avahi). The relevant portion that requires some config is enabling user service publishing.[^3]
 
 
-[^4]: The publish.enable part enables publishing generally. It is not implied by other settings which is a little strange as [setting `publish.userServices` implies `publish.addresses`](https://github.com/NixOS/nixpkgs/blob/e74ea4282a7922fd73655de863315854d322ea8d/nixos/modules/services/networking/avahi-daemon.nix#L132).
+[^3]: The publish.enable part enables publishing generally. It is not implied by other settings which is a little strange as [setting `publish.userServices` implies `publish.addresses`](https://github.com/NixOS/nixpkgs/blob/e74ea4282a7922fd73655de863315854d322ea8d/nixos/modules/services/networking/avahi-daemon.nix#L132).
 
 The rest is user and directory management, which are admittedly weak points discussed below.
 
@@ -97,17 +98,17 @@ So for now I had people enter their own logins into a passwd prompt on my machin
 GNU/Linux (rightfully) doesn't allow usernames to have literal spaces in them. Fine by me, but a little jarring when logging in the first time.
 
 ### Multi user support?
-As of right now all I do is make the changes manually. That is, for each user I create a setup systemd service and an afpd entry. It's not hard to imagine a scenario where all I have to do is add a user, directory, and size limit attribute set to a list, nixos-rebuild and allocate some more, but I only have 4 machines that need this. So yes, there is multi user support, but it's mostly manual (and convenient enough).
+As of right now all I do is make the changes manually. That is, for each user I create a systemd service and an `afp.conf` entry. It's not hard to imagine a scenario where all I have to do is add a user, directory, and size limit attribute set to a list, nixos-rebuild and allocate some more, but I only have 4 machines that need this. So yes, there is multi user support, but it's mostly manual (and convenient enough).
 
-Further, adding multiple users requires a reload of the configuration, and thus the daemon. In an enterprise environment where users are added all the time, this is a serious problem.
+Further, adding multiple users requires a reload of the configuration, and thus the daemon, cutting off anyone who is backing up. In an enterprise environment where users are added all the time, this is a serious problem.
 ### Aren't you forgetting to open UDP for avahi?
-[Nope!](https://github.com/NixOS/nixpkgs/blob/07cc3eb0d005938fa44a0580688400f0129efbd7/nixos/modules/services/networking/avahi-daemon.nix#L228)
+[Nope!](https://github.com/NixOS/nixpkgs/blob/07cc3eb0d005938fa44a0580688400f0129efbd7/nixos/modules/services/networking/avahi-daemon.nix#L228) The service declaration does that for me, saving me a whole line.
 The only other module I know of that does its own firewall configuration is SSH.
 
 ### Directory management
 Directory management is... uncomfortable on NixOS. While declaring a service isn't all _too_ bad, one problem I can see is that if someone decides to mess around server side with directory permissions, there is no way to recover besides doing it manually (or making the idempotent calls recursive). This is not the case with processes: all the stuff in RAM is ephemeral. I mean it makes sense that Nix, as a a functional language, isn't the best at handling persistent state. 
 
 ## Addendum: Taking down all server config from GitHub
-I've been pushing these commits to a public repo. Of course, like any sane person, I have relevant secrets on a gitignore, but now that I have the names of my family and some aspect of their usage patterns I've decided it is best to take the code down. I'll still post useful[^5] snippets here, and in repos. This allows people to get useful material out without having access to private-ish information, which was my intent anyway.
+I've been pushing these commits to a public repo. Of course, like any sane person, I have relevant secrets on a gitignore, but now that I have the names of my family and some aspect of their usage patterns I've decided it is best to take the code down. I'll still post useful[^4] snippets here, and in [this repo](https://github.com/alphor/example-nixos-config). This allows people to get useful material out without having access to private-ish information, which was my intent anyway.
 
-[^5]: This is almost certainly the first post I've written that isn't completely useless.
+[^4]: This is almost certainly the first post I've written that isn't completely useless.

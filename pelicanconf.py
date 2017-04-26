@@ -39,6 +39,9 @@ DEFAULT_PAGINATION = False
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
+ARTICLE_URL = 'posts/{slug}.html'
+ARTICLE_SAVE_AS = 'posts/{slug}.html'
+
 # Begin Flex config
 # PLUGIN_PATHS = ['./pelican-plugins']
 # PLUGINS = ['i18n_subsites', 'piwik']
@@ -46,3 +49,4 @@ THEME='./Flex'
 
 FEED_ALL_RSS = 'feed'
 CATEGORY_FEED_RSS = '%s'
+
