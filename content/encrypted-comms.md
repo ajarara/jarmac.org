@@ -1,6 +1,7 @@
 Title: Encrypted communication without host service disruption
 Date: 2017-04-22 20:47
-Tags: nixos, networking
+Tags: networking
+Category: nixOS
 Slug: encrypted-comms
 
 Suppose you're in my shoes: you have a home machine operating as a central point of services for my -- err, your family.
@@ -9,7 +10,7 @@ One such service you'd like is the ability to provide anonymity and security for
 
 How would you expose this endpoint to others in the network, so that they can utilize it without losing access to other services that are hosted in the clear?
 
-If I was in your shoes, I would have to ignore the routes pushed by the provider. This breaks things in weird ways, but that's usually the first step to anything interesting.
+If I was in your shoes (my shoes?), I would have to ignore the routes pushed by the provider. This breaks things in weird ways, but that's usually the first step to anything interesting.
 
 You can do this by setting `route-nopull` in the openvpn config file. Even though the server still pushes them, the client just ignores them. You can still communicate with the endpoint, but any traffic not directed at the endpoint goes to your regular default gateway. This leads to surprising results:
 

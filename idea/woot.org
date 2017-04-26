@@ -1,0 +1,69 @@
+* Title: A macOS time machine server in 42 lines of nix
+Time Machine provides a great interface to a rather expensive backup solution. I've got all this storage laying around, so I thought I'd put it to use:
+
+#+BEGIN_SRC 
+  { config, pkgs, ... }:
+  let
+    timeMachineDir = "/backup";
+    user = "macUser";
+    sizeLimit = "262144";
+  in {
+  services.avahi = {
+    enable = true;
+    publish = {
+      enable = true;
+      userServices = true;
+    };
+  };
+  
+  services.netatalk = {
+    enable = true;
+    extraConfig = ''
+      mimic model = TimeCapsule6,106  # show the icon for the first gen TC
+      log level = default:warn
+      log file = /var/log/afpd.log
+      hosts allow = 192.168.5.0/24
+    [${user}'s Time Machine]
+      path = ${timeMachineDir}
+      valid users = ${user}
+      time machine = yes
+      vol size limit = ${sizeLimit}
+    '';
+  };
+  
+  users.extraUsers.macUser = { name = "${user}"; group = "users"; };
+  systemd.services.macUserSetup = {
+    description = "idempotent directory setup for ${user}'s time machine";
+    requiredBy = [ "netatalk.service" ];
+    script = ''
+     mkdir -p ${timeMachineDir}
+      chown ${user}:users ${timeMachineDir}  # making these calls recursive is a switch
+      chmod 0750 ${timeMachineDir}           # away but probably computationally expensive
+      '';
+  };
+  
+  networking.firewall.allowedTCPPorts = [ 548 636 ];
+  }
+#+END_SRC
+Yes, the line count includes the line breaks.
+
+* Gotchas:
+** credentials
+I haven't figured out how to allow people to modify their passwords from the Time Machine client yet. It's possible to set initial[Hashed]Password for a user in NixOS, but this comes with the caveat that this info is readable by any program (and afaict any user). https://github.com/NixOS/nix/issues/8
+
+So far I've tried adding setting users.mutableUsers and an initialHashedPassword but short of giving clients ssh access (which is not desirable) I'm not sure how else to do it.
+
+So for now I have people enter their own logins into a passwd prompt on my machine. This is more than jarring from a security standpoint, and is probably going to be the next point of interest. 
+
+** userAccountsLookLikeThis
+GNU/Linux (rightfully) doesn't allow usernames to have literal spaces in them. Fine by me, but a little jarring when logging in the first time.
+
+** multi user support?
+As of right now all I do is make the changes manually, that is, for each user I create a setup systemd service and an afpd entry. It's not hard to imagine a scenario where all I have to do is add a user, directory, and size limit attribute set to a list, nixos-rebuild and allocate some more, but I only have 4 machines that need this. So yes, there is multi user support, but it's mostly manual (and convenient enough).
+
+** aren't you forgetting to open UDP for avahi?
+Nope! https://github.com/NixOS/nixpkgs/blob/07cc3eb0d005938fa44a0580688400f0129efbd7/nixos/modules/services/networking/avahi-daemon.nix#L228 
+The only other service I know of that does its own firewall configuration is SSH.
+* Addendum: Taking down server config from GitHub
+Like any sane person, I have secrets on a gitignore, but now that I have the names of my family and some aspect of their usage patterns I've decided it is best to take the code down in lieu of putting up isolated posts like these which allow people to get useful material out without having access to private-ish information. Further now that I have my own NixOS VPS (which I'll shortly move this domain to), I can use that as a private remote with a gitlab instance (which I'm willing to bet is just as easy to set up as any server side Apple tech).
+* this might be enough to start a business with..

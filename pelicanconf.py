@@ -25,7 +25,7 @@ AUTHOR_FEED_RSS = None
 # ('Pelican', 'http://getpelican.com/'),
 # ('Jinja2', 'http://jinja.pocoo.org/'),
 LINKS = (('Source', 'https://github.com/alphor/jarmac.org'),
-         ('NixOS', '//jarmac.org/category/nix.html'),
+         ('NixOS', '//jarmac.org/category/nixOS.html'),
          ('linux', '//jarmac.org/category/linux.html'),
          ('meta', '//jarmac.org/category/meta.html'),
          ('math', '//jarmac.org/category/math.html'),)
