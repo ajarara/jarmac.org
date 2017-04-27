@@ -5,23 +5,22 @@ Slug: time-machine
 
 ### Douglas Adams would be proud.
 
-Time Machine is a proprietary backup program that provides a great interface to a rather expensive physical backup solution. It is installed by default on recent-ish[^1] versions of macOS.
+Time Machine is a proprietary backup program that provides a great interface to a rather expensive physical backup solution. It is installed by default on recent-ish[^1] versions of macOS. Even though the interface is proprietary, the backend is free, open source software. 
 
 [^1]: Anything beyond 10.5 Leopard
 
-After some investigation I found that even though the interface is proprietary, the backend is free, open source software. All it takes is someone to glue the code together, and a machine with enough disk space:
+All it takes is someone to glue the code together, and a machine with enough disk space:
 
 ![3asirah is a small village in Palestine, named for its olive oil industry](/images/time-machine.png)
 
 
-I've done this before using Docker, which had its issues, but they weren't Docker-specific:
+I did this before using Docker. I don't think Docker, or any container tech, is right for this.
 
-I had to make sure both Docker and users had permission to read, write, execute their stuff. User GIDs needed to be consistent across the host and across the container. Avahi loses its functionality when put in a container unless you have a _very_ creative networking setup. [^2] 
+In Docker's case, I had to make sure both it and users had permission to read, write, and execute their stuff. User GIDs needed to be consistent across the host and across the container. Further, Avahi loses its functionality when put in a container unless you have a _very_ creative networking setup. [^2] 
 
 [^2]: I suppose it is possible if you bridged your interface and the Docker bridge (or veth, whatever you're using). This would mean exposing _every_ Docker service to your LAN, as that is what is needed to get broadcast packets to work.
 
 Since we need to break the file system and network encapsulation layers anyway, putting this service in a container makes little sense. Especially since the Nix packaging system is so good at handling the dependency problem. 
-
 
 The config is short, readable, and all in one file. If you're running NixOS, all you have to do is import the below to get one (changing relevant details like user, directory, allowed hosts, etc.).
 
@@ -72,10 +71,40 @@ The config is short, readable, and all in one file. If you're running NixOS, all
 ```
 Yes, I counted the line breaks.
 
-# How?
-Nix does everything: it pulls in the netatalk and avahi binaries from the cache, opens the right firewall interfaces, and registers and multicasts the service. It just works.
+## The Module in Chunks
+Nix does everything: it pulls in the netatalk and avahi binaries from the cache, opens the right firewall interfaces, and registers and multicasts the service. It just works. If we wanted to add an additional configure flag, we'd set it in `nixpkgs.package.overrides` which expects a function that is passed the old attributes. We could add or filter from that list and make our new configure flags! In this case the avahi flag is set, as is SSL. So no need.
 
-Netatalk implements the Apple Filing Protocol (afp), which is what Apple uses on their own Time Capsules. The config was easy enough to understand: I lifted it from [an old guide](https://kremalicious.com/ubuntu-as-mac-file-server-and-time-machine-volume/) on how to do this on stock Ubuntu. 
+### netatalk (AKA afpd)
+``` nix
+  services.netatalk = {
+    # all enable statements invoke code in the implementation of a module.
+    # in this case:
+    # https://github.com/NixOS/nixpkgs/blob/09a9a472ee783b40c2a3dd287bbe9d3c60f8fc58/nixos/modules/services/network-filesystems/netatalk.nix#L122
+    enable = true;
+    
+    # the first four lines are appended to the global section.
+    # only the stuff after [${user}'s Time Machine] is user specific
+    extraConfig = ''
+      mimic model = TimeCapsule6,106  # show the icon for the first gen TC
+      log level = default:warn
+      log file = /var/log/afpd.log  # this helped me crack why zeroconf needed
+                                    # non-zero configuration.
+      hosts allow = 192.168.1.0/24
+    [${user}'s Time Machine]
+      path = ${timeMachineDir} 
+      valid users = ${user}
+      time machine = yes
+      vol size limit = ${sizeLimit}  # in megabytes
+    '';
+  };
+```
+Netatalk implements the Apple Filing Protocol (afp), which is what Apple uses on their own Time Capsules. The config was easy enough to understand: I lifted it from [an old guide](https://kremalicious.com/ubuntu-as-mac-file-server-and-time-machine-volume/) showing how to do this on stock Ubuntu. 
+
+# Avahi
+
+Enabling  and a naive `services.avahi.enable = true;` gave me an error in the logs essentially saying that netatalk wasn't allowed to create an entry group. Like any computer wiz worth their salt I looked it up, and found [the issue](https://bugs.launchpad.net/ubuntu/+source/netatalk/+bug/841772). What is labelled a bug is actually a feature of Avahi, that the reporter worked around by simply disabling service registration with the -nozeroconf option.
+
+
 
 In some cases, the NixOS interface for configuration of a service boils down to attribute sets where the maintainer of the module created attribute sets for the things they needed, and extraConfig for all the other cases. I like this, because it allows things to [be implemented gradually](https://news.ycombinator.com/item?id=12337549).
 
@@ -89,6 +118,8 @@ The rest is user and directory management, which are admittedly weak points disc
 ## Gotchas:
 ### Credentials
 I haven't figured out how to allow people to modify their passwords from the Time Machine client yet. It's possible to set initial[Hashed]Password for a user in NixOS, but this comes with the caveat that [this info is readable by any program (or user).](https://github.com/NixOS/nix/issues/8)
+
+The hash or the password is available in the store in plain text. If a malicious program/actor obtains the password, then it's game over. If a hash is exposed, then hope the password doesn't show up in a dictionary somewhere.
 
 So far I've tried setting users.mutableUsers and an initialHashedPassword in order to prod the Time Machine client to allow client side password changes, but that didn't work. Short of giving clients ssh access (which is not desirable) I'm not sure how else to do it.
 
