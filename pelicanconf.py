@@ -25,10 +25,10 @@ AUTHOR_FEED_RSS = None
 # ('Pelican', 'http://getpelican.com/'),
 # ('Jinja2', 'http://jinja.pocoo.org/'),
 LINKS = (('Source', 'https://github.com/alphor/jarmac.org'),
-         ('NixOS', 'nixos.html'),
+         ('nixOS', 'nixos.html'),
          ('linux', 'linux.html'),
          ('meta', 'meta.html'),
-         ('math', 'math.html'),)
+         ('math', 'math.html'))
 
 # Social widget
 SOCIAL = (('Github', 'https://github.com/alphor', '//jarmac.org/theme/img/GitHub-Mark-Light-32px.png'),

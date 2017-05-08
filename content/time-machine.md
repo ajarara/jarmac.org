@@ -147,7 +147,13 @@ In this case, I could've configured the Time Machine directive as [a volume](htt
 ```
 User configuration is so varied that it might be best just to refer you to the [module itself](https://github.com/NixOS/nixpkgs/blob/77f572f07234e500d0d3aeecd03a2af96cc3da06/nixos/modules/config/users-groups.nix).
 
+A couple of tidbits:
+
 One portion that warrants discussion is the password hash. This is output from `mkpasswd -m sha512 <password>` and is convenient if you want to reset the user account (you can do this by just deleting the user the standard unix way, and rebuild the configuration). Make sure users.mutableUsers is true (as of 4/27/17 that is the default).
+
+Resist the urge to set `isNormalUser` unless it is necessary. Setting it gives them [a shell, a home, and puts them in the users group](https://github.com/NixOS/nixpkgs/blob/77f572f07234e500d0d3aeecd03a2af96cc3da06/nixos/modules/config/users-groups.nix#L253) (which I did here to simplify config).
+
+
 ## Filesystem structure
 This is admittedly a weak point of Nix.
 
