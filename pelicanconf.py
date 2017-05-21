@@ -25,10 +25,10 @@ AUTHOR_FEED_RSS = None
 # ('Pelican', 'http://getpelican.com/'),
 # ('Jinja2', 'http://jinja.pocoo.org/'),
 LINKS = (('Source', 'https://github.com/alphor/jarmac.org'),
-         ('nixOS', 'nixos.html'),
-         ('linux', 'linux.html'),
-         ('meta', 'meta.html'),
-         ('math', 'math.html'))
+         ('nixOS', '//jarmac.org/category/nixos.html'),
+         ('linux', '//jarmac.org/category/linux.html'),
+         ('meta', '//jarmac.org/category/meta.html'),
+         ('math', '//jarmac.org/category/math.html'))
 
 # Social widget
 SOCIAL = (('Github', 'https://github.com/alphor', '//jarmac.org/theme/img/GitHub-Mark-Light-32px.png'),
@@ -46,6 +46,9 @@ ARTICLE_SAVE_AS = 'posts/{slug}.html'
 # PLUGIN_PATHS = ['./pelican-plugins']
 # PLUGINS = ['i18n_subsites', 'piwik']
 THEME='./Flex'
+
+PIWIK_URL='piwik.jarmac.org'
+PIWIK_SITE_ID="'1'"
 
 DISABLE_URL_HASH = True
 
