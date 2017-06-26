@@ -5,7 +5,7 @@ Tags: deploy, functional
 Slug: starting-nix
 
 
-_Edit 4/18/17: This article is based on NixOS 16.09, "Flounder". If you're using NixOS 17.09, the new way to modify a derivation is through the use of [overlays](https://nixos.org/nixpkgs/manual/#sec-overlays-install), which was the standard way of overriding packages previously (as discussed on [S/O here](http://stackoverflow.com/a/36011540))._
+_Edit 6/26/17: The contents of this post are now completely __OUT OF DATE__. It remains here for historical purposes only. This stuff will likely still work, but if you'd like to establish policy based routing on NixOS, I heavily suggest creating a service declaration to modify /etc/iproute2/rt\_tables and scheduling it before networking.service. The new way to modify a derivation is through the use of [overlays](https://nixos.org/nixpkgs/manual/#sec-overlays-install), which was the standard way of overriding packages previously (as discussed on [S/O here](http://stackoverflow.com/a/36011540))._
 
 Nix is awesome. It makes deploying so much fun.
 
