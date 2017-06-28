@@ -1,4 +1,6 @@
 Makefile
 fabfile.py
 Flex
+pelican-themes
+pelican-plugins
 output/*

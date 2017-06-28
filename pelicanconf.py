@@ -42,13 +42,20 @@ DEFAULT_PAGINATION = False
 ARTICLE_URL = 'posts/{slug}.html'
 ARTICLE_SAVE_AS = 'posts/{slug}.html'
 
-# Begin Flex config
-# PLUGIN_PATHS = ['./pelican-plugins']
-# PLUGINS = ['i18n_subsites', 'piwik']
-THEME='./Flex'
+# Begin theme config
+PLUGIN_PATHS = ['./pelican-plugins']
+PLUGINS = ['i18n_subsites']
+THEME = './pelican-themes/pelican-bootstrap3'
 
-PIWIK_URL='piwik.jarmac.org'
-PIWIK_SITE_ID="'1'"
+
+CUSTOM_CSS = 'theme/css/sitewide.css'
+
+JINJA_ENVIRONMENT = {'extensions': ['jinja2.ext.i18n']}
+
+HIDE_SIDEBAR = True
+
+# PIWIK_URL = 'piwik.jarmac.org'
+# PIWIK_SITE_ID = "'1'"
 
 DISABLE_URL_HASH = True
 

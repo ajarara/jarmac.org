@@ -1,6 +1,6 @@
 Title: "Deploying with Nix"
 Date: 2017-04-18 19:03
-Category: nix
+Category: Nixos
 Tags: deploy, functional
 Slug: starting-nix
 
